@@ -7,13 +7,7 @@ services:
       - key: OPENROUTER_API_KEY
         sync: false          # set manually in Render dashboard
       - key: DASHBOARD_PASSWORD
-        sync: false          # set manually in Render dashboard
-      - key: DATA_DIR
-        value: /data
+        sync: false          # leave blank to disable auth
       - key: PYTHONUTF8
         value: "1"
-    disk:
-      name: agent-data
-      mountPath: /data
-      sizeGB: 1
     healthCheckPath: /health
