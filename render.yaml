@@ -8,6 +8,8 @@ services:
         sync: false          # set manually in Render dashboard
       - key: DASHBOARD_PASSWORD
         sync: false          # leave blank to disable auth
+      - key: DATA_DIR
+        value: data          # relative path → /app/data (writable in container)
       - key: PYTHONUTF8
         value: "1"
     healthCheckPath: /health
