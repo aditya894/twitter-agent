@@ -36,6 +36,9 @@
   .btn-reject { background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); color:var(--red); }
   .btn-copy { background:rgba(13,158,126,0.12); border:1px solid rgba(13,158,126,0.3); color:var(--teal-light); }
   .btn:hover { opacity:0.85; }
+  .btn-run { background:var(--teal); color:#fff; display:flex; align-items:center; gap:6px; }
+  .btn-run:disabled { opacity:0.6; cursor:not-allowed; }
+  .run-bar { display:flex; justify-content:flex-end; margin-bottom:20px; }
   .flash { padding:12px 18px; border-radius:8px; margin-bottom:16px; font-size:13px; font-weight:600; }
   .flash.success { background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); color:var(--green); }
   .flash.error { background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:var(--red); }
@@ -43,8 +46,13 @@
 </head>
 <body>
 
-<h1>🤖 Content Agent <span class="badge">{{ pending|length }} pending</span></h1>
-<p class="subtitle">Review AI-generated LinkedIn posts. Approve to save, Reject to discard.</p>
+<div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:4px;">
+  <div>
+    <h1>🤖 Content Agent <span class="badge">{{ pending|length }} pending</span></h1>
+    <p class="subtitle">Review AI-generated LinkedIn posts. Approve to save, Reject to discard.</p>
+  </div>
+  <button class="btn btn-run" id="runBtn" onclick="runAgent()">▶ Run Agent</button>
+</div>
 
 {% if flash %}
 <div class="flash {{ flash.type }}">{{ flash.message }}</div>
@@ -122,6 +130,38 @@
 {% endif %}
 
 <script>
+async function runAgent() {
+  const btn = document.getElementById('runBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Running…';
+  try {
+    const res = await fetch('/internal/run-agent', {method:'POST'});
+    const data = await res.json();
+    if (data.status === 'started') {
+      btn.textContent = '⏳ Generating posts…';
+      // Poll /debug every 5s until pending count increases or 90s pass
+      const before = {{ pending|length }};
+      let waited = 0;
+      const timer = setInterval(async () => {
+        waited += 5;
+        const d = await fetch('/debug').then(r=>r.json());
+        if (d.pending > before || waited >= 90) {
+          clearInterval(timer);
+          location.reload();
+        }
+      }, 5000);
+    } else {
+      btn.disabled = false;
+      btn.textContent = '▶ Run Agent';
+      alert('Error: ' + JSON.stringify(data));
+    }
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = '▶ Run Agent';
+    alert('Request failed: ' + e);
+  }
+}
+
 function copyPost(id) {
   const el = document.getElementById('post-' + id);
   if (!el) return;
