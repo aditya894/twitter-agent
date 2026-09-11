@@ -6,3 +6,5 @@ data/brief-*.json
 data/preview.html
 data/posts.db
 data/*.db
+pending/
+approved/

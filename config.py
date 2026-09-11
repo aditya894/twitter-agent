@@ -9,7 +9,7 @@ load_dotenv()
 
 # ── API ───────────────────────────────────────────────────
 OPENROUTER_API_KEY: str = os.getenv("OPENROUTER_API_KEY", "")
-CLAUDE_MODEL: str = os.getenv("CLAUDE_MODEL", "google/gemini-2.0-flash-exp:free")
+CLAUDE_MODEL: str = os.getenv("CLAUDE_MODEL", "nvidia/nemotron-3-ultra-550b-a55b:free")
 
 # ── Topic discovery ───────────────────────────────────────
 # Google News RSS — India Technology feed (search-based, more stable than topic IDs)
