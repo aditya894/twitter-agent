@@ -80,7 +80,9 @@ async def debug():
         p = store.list_pending()
         a = store.list_approved()
         scheduler_ok = getattr(app.state, "scheduler", None) is not None
-        return {"status": "ok", "pending": len(p), "approved": len(a), "scheduler": scheduler_ok}
+        last_error = getattr(app.state, "last_agent_error", None)
+        return {"status": "ok", "pending": len(p), "approved": len(a),
+                "scheduler": scheduler_ok, "last_agent_error": last_error}
     except Exception as exc:
         return {"error": str(exc), "traceback": traceback.format_exc()}
 
@@ -129,13 +131,21 @@ async def run_agent_now(request: Request, _=Depends(verify)):
     import asyncio
     _agent = getattr(request.app.state, "agent", None)
     if _agent is None:
-        # Try importing now in case it failed at startup
         try:
             import agent as _agent
             request.app.state.agent = _agent
         except Exception as exc:
             return {"error": f"Agent failed to load: {exc}"}
-    asyncio.create_task(_agent.run())
+
+    async def _run_with_logging():
+        try:
+            await _agent.run()
+        except Exception as exc:
+            msg = f"[AGENT ERROR] {type(exc).__name__}: {exc}\n{traceback.format_exc()}"
+            print(msg, flush=True)
+            request.app.state.last_agent_error = msg
+
+    asyncio.create_task(_run_with_logging())
     return {"status": "started"}
 
 
