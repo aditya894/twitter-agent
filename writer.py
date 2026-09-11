@@ -24,23 +24,35 @@ _JSON_SYSTEM = (
 
 
 def _extract_json(raw: str) -> dict | list:
-    """Robustly extract JSON from model output even if it adds fluff."""
-    # Strip markdown fences
+    """
+    Robustly extract JSON from model output even when CoT reasoning precedes it.
+    CoT models output JSON at the END — scan from the right to find it.
+    """
     raw = re.sub(r"^```(?:json)?\s*|\s*```$", "", raw.strip(), flags=re.MULTILINE)
     try:
         return json.loads(raw)
     except json.JSONDecodeError:
         pass
-    # Find the first {...} or [...]
+
+    # Scan from the right: find last complete {...} or [...]
     for opener, closer in (('{', '}'), ('[', ']')):
-        start = raw.find(opener)
         end = raw.rfind(closer)
-        if start != -1 and end > start:
-            try:
-                return json.loads(raw[start:end + 1])
-            except json.JSONDecodeError:
-                continue
-    raise ValueError(f"No JSON found in: {raw[:300]}")
+        if end == -1:
+            continue
+        # Walk left matching brackets to find the corresponding opener
+        depth = 0
+        for i in range(end, -1, -1):
+            if raw[i] == closer:
+                depth += 1
+            elif raw[i] == opener:
+                depth -= 1
+                if depth == 0:
+                    try:
+                        return json.loads(raw[i:end + 1])
+                    except json.JSONDecodeError:
+                        break
+
+    raise ValueError(f"No JSON found in model output: {raw[:200]}")
 
 
 # ─────────────────────────────────────────────────────────────────────
@@ -121,7 +133,7 @@ Return ONLY this JSON (no other text before or after):
 
     response = client.chat.completions.create(
         model=CLAUDE_MODEL,
-        max_tokens=900,
+        max_tokens=2000,
         messages=[
             {"role": "system", "content": _JSON_SYSTEM},
             {"role": "user", "content": prompt},
