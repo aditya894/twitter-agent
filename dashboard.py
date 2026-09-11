@@ -3,21 +3,16 @@ dashboard.py — FastAPI approval dashboard + embedded agent scheduler.
 
 Start: python dashboard.py
 Open:  http://localhost:8000
-
-Scheduling: APScheduler runs agent.run() at 00:30 UTC Mon–Fri (06:00 IST)
-inside this process so it shares the same SQLite DB as the dashboard.
 """
 import secrets
+import traceback
 from contextlib import asynccontextmanager
 
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from apscheduler.triggers.cron import CronTrigger
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.templating import Jinja2Templates
 
-import agent
 import store
 from config import DASHBOARD_HOST, DASHBOARD_PORT, DASHBOARD_PASSWORD
 
@@ -38,18 +33,32 @@ def verify(credentials: HTTPBasicCredentials = Depends(security)):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    scheduler = AsyncIOScheduler()
-    # 00:30 UTC Mon–Fri = 06:00 IST
-    scheduler.add_job(agent.run, CronTrigger.from_crontab("30 0 * * 1-5"), id="agent_run")
-    scheduler.start()
+    # Lazy-import agent so a broken OPENROUTER_API_KEY never stops the server
+    try:
+        from apscheduler.schedulers.asyncio import AsyncIOScheduler
+        from apscheduler.triggers.cron import CronTrigger
+        import agent as _agent
+
+        scheduler = AsyncIOScheduler()
+        # 00:30 UTC Mon–Fri = 06:00 IST
+        scheduler.add_job(_agent.run, CronTrigger.from_crontab("30 0 * * 1-5"), id="agent_run")
+        scheduler.start()
+        app.state.scheduler = scheduler
+        app.state.agent = _agent
+    except Exception as exc:
+        print(f"[WARNING] Scheduler failed to start: {exc}")
+        app.state.scheduler = None
+        app.state.agent = None
+
     yield
-    scheduler.shutdown()
+
+    if getattr(app.state, "scheduler", None):
+        app.state.scheduler.shutdown()
 
 
 app = FastAPI(title="Content Agent Dashboard", lifespan=lifespan)
 templates = Jinja2Templates(directory="templates")
 
-# Flash message stored in-process (simple, no sessions needed)
 _flash: dict | None = None
 
 
@@ -66,11 +75,11 @@ async def health():
 
 @app.get("/debug")
 async def debug():
-    import traceback
     try:
         p = store.list_pending()
         a = store.list_approved()
-        return {"status": "ok", "pending": len(p), "approved": len(a)}
+        scheduler_ok = getattr(app.state, "scheduler", None) is not None
+        return {"status": "ok", "pending": len(p), "approved": len(a), "scheduler": scheduler_ok}
     except Exception as exc:
         return {"error": str(exc), "traceback": traceback.format_exc()}
 
@@ -114,10 +123,18 @@ async def reject(post_id: str, _=Depends(verify)):
 
 
 @app.post("/internal/run-agent")
-async def run_agent_now(_=Depends(verify)):
+async def run_agent_now(request: Request, _=Depends(verify)):
     """Trigger one agent run immediately (useful for testing)."""
     import asyncio
-    asyncio.create_task(agent.run())
+    _agent = getattr(request.app.state, "agent", None)
+    if _agent is None:
+        # Try importing now in case it failed at startup
+        try:
+            import agent as _agent
+            request.app.state.agent = _agent
+        except Exception as exc:
+            return {"error": f"Agent failed to load: {exc}"}
+    asyncio.create_task(_agent.run())
     return {"status": "started"}
 
 
