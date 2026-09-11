@@ -64,6 +64,17 @@ async def health():
     return {"status": "ok"}
 
 
+@app.get("/debug")
+async def debug():
+    import traceback
+    try:
+        p = store.list_pending()
+        a = store.list_approved()
+        return {"status": "ok", "pending": len(p), "approved": len(a)}
+    except Exception as exc:
+        return {"error": str(exc), "traceback": traceback.format_exc()}
+
+
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request, tab: str = "pending", _=Depends(verify)):
     return templates.TemplateResponse(
