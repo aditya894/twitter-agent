@@ -73,7 +73,7 @@ async def run(manual_topics: list[str] | None = None, dry_run: bool = False):
         return
 
     # ── Step 3: Collect tweets per topic ────────────────────────────
-    console.print(f"\n[bold cyan]Step 3/4[/] Searching Twitter content via Google…")
+    console.print(f"\n[bold cyan]Step 3/4[/] Fetching news context from Google News…")
     tweet_map = await collect_content(selected_topics)
 
     for topic, tweets in tweet_map.items():
