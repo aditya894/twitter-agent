@@ -49,5 +49,6 @@ DATA_DIR: str = os.getenv("DATA_DIR", "data")
 
 # ── Dashboard ─────────────────────────────────────────────
 DASHBOARD_HOST: str = "0.0.0.0"
-DASHBOARD_PORT: int = 8000
+# Render injects PORT; fall back to DASHBOARD_PORT for local dev
+DASHBOARD_PORT: int = int(os.getenv("PORT", os.getenv("DASHBOARD_PORT", "8000")))
 DASHBOARD_PASSWORD: str = os.getenv("DASHBOARD_PASSWORD", "")

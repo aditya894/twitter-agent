@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: twitter-agent
+    runtime: docker
+    plan: free
+    envVars:
+      - key: OPENROUTER_API_KEY
+        sync: false          # set manually in Render dashboard
+      - key: DASHBOARD_PASSWORD
+        sync: false          # set manually in Render dashboard
+      - key: DATA_DIR
+        value: /data
+      - key: PYTHONUTF8
+        value: "1"
+    disk:
+      name: agent-data
+      mountPath: /data
+      sizeGB: 1
+    healthCheckPath: /health

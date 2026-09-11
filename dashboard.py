@@ -1,31 +1,27 @@
 """
-dashboard.py — FastAPI approval dashboard.
+dashboard.py — FastAPI approval dashboard + embedded agent scheduler.
 
 Start: python dashboard.py
 Open:  http://localhost:8000
+
+Scheduling: APScheduler runs agent.run() at 00:30 UTC Mon–Fri (06:00 IST)
+inside this process so it shares the same SQLite DB as the dashboard.
 """
 import secrets
+from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI, HTTPException, Form, Request
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.cron import CronTrigger
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.templating import Jinja2Templates
 
+import agent
 import store
 from config import DASHBOARD_HOST, DASHBOARD_PORT, DASHBOARD_PASSWORD
 
-app = FastAPI(title="Content Agent Dashboard")
-templates = Jinja2Templates(directory="templates")
 security = HTTPBasic(auto_error=False)
-
-# Flash message stored in-process (simple, no sessions needed)
-_flash: dict | None = None
-
-
-def _pop_flash() -> dict | None:
-    global _flash
-    f, _flash = _flash, None
-    return f
 
 
 def verify(credentials: HTTPBasicCredentials = Depends(security)):
@@ -38,6 +34,29 @@ def verify(credentials: HTTPBasicCredentials = Depends(security)):
     )
     if not ok:
         raise HTTPException(401, headers={"WWW-Authenticate": "Basic"})
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    scheduler = AsyncIOScheduler()
+    # 00:30 UTC Mon–Fri = 06:00 IST
+    scheduler.add_job(agent.run, CronTrigger.from_crontab("30 0 * * 1-5"), id="agent_run")
+    scheduler.start()
+    yield
+    scheduler.shutdown()
+
+
+app = FastAPI(title="Content Agent Dashboard", lifespan=lifespan)
+templates = Jinja2Templates(directory="templates")
+
+# Flash message stored in-process (simple, no sessions needed)
+_flash: dict | None = None
+
+
+def _pop_flash() -> dict | None:
+    global _flash
+    f, _flash = _flash, None
+    return f
 
 
 @app.get("/health")
