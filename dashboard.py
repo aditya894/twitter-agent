@@ -102,6 +102,14 @@ async def reject(post_id: str, _=Depends(verify)):
     return RedirectResponse(url="/?tab=pending", status_code=303)
 
 
+@app.post("/internal/run-agent")
+async def run_agent_now(_=Depends(verify)):
+    """Trigger one agent run immediately (useful for testing)."""
+    import asyncio
+    asyncio.create_task(agent.run())
+    return {"status": "started"}
+
+
 @app.get("/approved", response_class=HTMLResponse)
 async def approved_tab(request: Request):
     return RedirectResponse(url="/?tab=approved", status_code=302)
