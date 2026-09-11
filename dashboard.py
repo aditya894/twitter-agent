@@ -59,6 +59,16 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Content Agent Dashboard", lifespan=lifespan)
 templates = Jinja2Templates(directory="templates")
 
+
+@app.exception_handler(Exception)
+async def _debug_exception_handler(request: Request, exc: Exception):
+    import traceback
+    from fastapi.responses import PlainTextResponse
+    return PlainTextResponse(
+        f"{type(exc).__name__}: {exc}\n\n{traceback.format_exc()}",
+        status_code=500,
+    )
+
 _flash: dict | None = None
 
 
