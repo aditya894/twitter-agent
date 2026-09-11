@@ -1,0 +1,32 @@
+# An RSS item whose TITLE matches any of these is dropped, even if it matched
+# a keyword. Matched as prefixes on word boundaries, case insensitive.
+#
+# Why this exists: keywords.txt is a pass list, so one AI-ish word is enough to
+# get in. Webinar listings and podcast episodes mention AI constantly while
+# containing no story you could post about.
+#
+# Only titles are checked, not summaries. A real article that merely mentions a
+# webinar in passing should still get through.
+#
+# Delete every line to disable.
+
+webinar
+podcast
+episode
+newsletter
+roundup
+weekly digest
+this week in
+sponsored
+advertorial
+whitepaper
+ebook
+awards
+award winners
+shortlist
+promotion
+appoints
+hires
+joins as
+takes over as
+obituary

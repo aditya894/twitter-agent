@@ -1,0 +1,88 @@
+# Format: Label | Feed URL
+# One per line. Blank lines and # comments are ignored.
+# A dead feed logs a warning and is skipped. It will not stop the brief.
+#
+# Test any change with: python3 src/main.py --sources-only
+# That costs nothing and takes about five seconds. Add feeds one at a time.
+#
+# Rule of thumb: cut anything that fills the pool with product release notes
+# or general science. Hyperscaler blogs are the worst offenders. The model's
+# own web searches catch the genuinely big announcements anyway.
+
+
+# --- Ranked aggregators, the useful kind of "trending" -------------------
+# These rank by attention rather than by publication time, which is what a
+# trending list is supposed to do. Techmeme is editorially ordered by
+# importance. The Reddit and Lobsters feeds rank by community votes.
+#
+# Note on X and Twitter trend sites: deliberately absent. Those boards rank by
+# spike velocity, which structurally favours entertainment and sport. Enterprise
+# AI is a steady conversation and can never out-spike a football match, so the
+# list is entertainment noise every single day. Aggregators that scrape those
+# boards inherit the same problem.
+
+Techmeme | https://www.techmeme.com/feed.xml
+
+# Tested 10 Sep 2026 and cut. Kept here so the result is not relitigated.
+#   Reddit MachineLearning: 3 items, all hobbyist project posts. Interesting
+#     to ML engineers, irrelevant to a CIO. Also 429s from shared IPs.
+#   Reddit LocalLLaMA and devops: 429 rate limited, never returned anything.
+#   Lobsters: one marginal item. Not worth a slot.
+#
+# Reddit MachineLearning | https://www.reddit.com/r/MachineLearning/top/.rss?t=day
+# Reddit LocalLLaMA | https://www.reddit.com/r/LocalLLaMA/top/.rss?t=day
+# Reddit devops | https://www.reddit.com/r/devops/top/.rss?t=day
+# Lobsters | https://lobste.rs/rss
+#
+# The lesson from that test: vertical trade press beats every aggregator.
+# Artificial Lawyer and Finextra each returned five on-topic items the same
+# morning. Adding another feed like those beats adding another trending source.
+
+
+# --- Engineering and enterprise AI ---------------------------------------
+InfoQ AI | https://feed.infoq.com/ai-ml-data-eng/
+The Register AI | https://www.theregister.com/software/ai_ml/headlines.atom
+
+
+# --- Legal vertical -------------------------------------------------------
+# Legal IT Insider is the best performer in this list. Aim for this hit rate.
+Legal IT Insider | https://legaltechnology.com/feed/
+Artificial Lawyer | https://www.artificiallawyer.com/feed/
+
+
+# --- Insurance vertical ---------------------------------------------------
+# Insurance trade press is mostly claims, catastrophes and market news, so
+# config/keywords.txt does the heavy lifting here. Expect these feeds to
+# contribute one or two items a day each, not five. That is correct.
+Coverager | https://coverager.com/feed/
+Insurance Thought Leadership | https://www.insurancethoughtleadership.com/feed
+Carrier Management | https://www.carriermanagement.com/feed/
+
+
+# --- Banking and lending --------------------------------------------------
+Finextra | https://www.finextra.com/rss/headlines.aspx
+# American Banker blocks non-subscriber clients with a 403. Dropped.
+
+
+# --- India tech news -------------------------------------------------------
+# Strong signal for India-focused audience: startups, product launches,
+# funding rounds, policy, and the growing AI ecosystem.
+YourStory | https://yourstory.com/feed
+Inc42 | https://inc42.com/feed/
+NDTV Gadgets | https://gadgets.ndtv.com/rss/feeds
+Economic Times Tech | https://economictimes.indiatimes.com/tech/rssfeeds/13357270.cms
+# Times of India Tech covers major AI and product launches with good India angle
+TOI Tech | https://timesofindia.indiatimes.com/rssfeeds/-2128936835.cms
+
+
+# --- Candidates that failed on first test. Uncomment to retry. ------------
+# The browser User-Agent now sent may fix the 403s. Try one at a time.
+#
+# Digital Insurance | https://www.dig-in.com/feed?rss=true
+# Artificial Intelligence News | https://www.artificialintelligence-news.com/feed/
+# VentureBeat AI | https://venturebeat.com/category/ai/feed/
+#
+# Dropped deliberately:
+#   MIT Technology Review, too much general science and battery news
+#   Google Cloud Blog and AWS ML, product release notes, low signal
+#   Anthropic News, the RSS URL 404s

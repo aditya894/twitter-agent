@@ -1,0 +1,91 @@
+# Hacker News search queries. One per line. # comments and blanks ignored.
+#
+# Each line hits the HN Algolia API separately, filtered to stories from the
+# last MAX_STORY_AGE_HOURS with at least HN_MIN_POINTS points.
+#
+# Keep queries to 2 to 4 words. Algolia narrows hard on long strings, and a
+# 6-word query will return nothing. Broad is correct here. Filtering happens
+# at the scoring step against icp.md, not in this file.
+#
+# What HN is good for: the engineering half of the lane. Reliability, evals,
+# production failures, document parsing, ops. What HN is bad for: insurance,
+# legal and lending trade news. Leave those to feeds.txt.
+
+
+# --- Tier 1: the failure and reality genre -------------------------------
+# The single best post material. Someone shipped something, it broke, and
+# they wrote it up honestly. These threads are always contested, which is
+# exactly where an argument worth posting lives.
+
+AI agents production
+LLM production lessons
+AI postmortem
+agent reliability
+enterprise AI failure
+LLM in production
+
+
+# --- Tier 2: evaluation, governance, trust -------------------------------
+# Maps directly to the evaluation and MLOps capability, and it is what
+# regulated buyers lose sleep over.
+
+LLM evaluation
+evals LLM
+AI governance
+prompt injection
+LLM hallucination
+AI compliance
+EU AI Act
+
+
+# --- Tier 3: document AI and retrieval ------------------------------------
+# Document parsing is a perennial HN topic and the closest match to the
+# document-heavy verticals. High yield.
+
+PDF extraction
+document parsing
+OCR pipeline
+RAG retrieval
+vector search production
+context engineering
+
+
+# --- Tier 4: data and ops plumbing ----------------------------------------
+# Less glamorous, but it is where the actual delivery work sits and where
+# your credibility with a VP Engineering comes from.
+
+MLOps
+LLM observability
+inference cost
+data pipeline
+self-hosted LLM
+
+
+# --- Tier 5: the buying conversation --------------------------------------
+# Thinner volume, but when these land they are the most commercially useful
+# posts you can write, because the reader is already deciding.
+
+build vs buy AI
+AI vendor lock-in
+enterprise AI procurement
+AI consulting
+
+
+# --- Optional: rotate a vertical in for a month ---------------------------
+# Uncomment one at a time when you are running a campaign. Expect low volume.
+# HN does not talk about insurance much, and that is fine.
+#
+# healthcare AI deployment
+# claims automation
+# legal AI documents
+# supply chain AI
+# fraud detection machine learning
+
+
+# --- India tech (HN covers this thinly, but when it does it's high signal) -
+# Uncomment if running an India-focused campaign.
+#
+# India startup
+# Jio AI
+# UPI payments
+# India developer tools

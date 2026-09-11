@@ -1,0 +1,64 @@
+# An RSS item must contain one of these terms in its title or summary to enter
+# the pool. Case insensitive, substring match. Hacker News items skip this
+# filter, because the queries in hn_queries.txt already do the same job.
+#
+# Delete every line to disable filtering entirely.
+#
+# Why this exists: vertical trade press is the point of feeds.txt, but most of
+# what it publishes is claims, catastrophes and market news. Without a filter,
+# one insurance feed fills the pool with shipping disruptions and dam
+# litigation and crowds out the story you actually wanted.
+
+# --- Core AI terms ---
+AI
+artificial intelligence
+machine learning
+LLM
+GenAI
+generative
+agentic
+agent
+copilot
+chatbot
+ChatGPT
+Claude
+Gemini
+OpenAI
+Anthropic
+automation
+automate
+
+# --- The delivery lane ---
+RAG
+retrieval
+document
+OCR
+extraction
+computer vision
+MLOps
+data platform
+data pipeline
+model
+inference
+underwriting automation
+claims automation
+straight-through
+
+# --- Governance and trust, which is what regulated buyers care about ---
+governance
+compliance
+regulator
+audit
+explainab
+bias
+hallucinat
+privacy
+prompt injection
+
+# --- Commercial signals worth posting about ---
+deploys
+rollout
+pilot
+partnership
+acquires
+raises

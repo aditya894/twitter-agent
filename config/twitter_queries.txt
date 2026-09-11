@@ -1,0 +1,33 @@
+# Twitter/X search queries via Google site:x.com
+# One per line. # comments and blanks ignored.
+#
+# Each line becomes: site:x.com "query" in Google Search.
+# Keep queries specific enough to return real tech discourse, not noise.
+# These run sequentially with a 2.5s delay between each.
+#
+# Test with: python src/main.py --sources-only
+
+
+# --- India tech product launches and funding -------------------------------
+startup India funding
+India AI startup
+India tech unicorn
+Made in India tech
+Reliance Jio AI
+ISRO launch
+India EV
+
+# --- Global AI news that India audience cares about ----------------------
+OpenAI GPT release
+Anthropic Claude release
+Google Gemini
+AI agents production
+LLM in production
+AI India deployment
+
+# --- Developer community discourse ----------------------------------------
+India developer Python
+India developer React
+GitHub Copilot India
+Bangalore tech
+Hyderabad tech startup
